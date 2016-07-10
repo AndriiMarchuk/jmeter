@@ -94,6 +94,10 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
 
     private final JCheckBox useAuth = new JCheckBox(JMeterUtils.getResString("jms_use_auth"), false); //$NON-NLS-1$
 
+    private final JLabeledTextField jmsConUser = new JLabeledTextField(JMeterUtils.getResString("jms_con_user")); //$NON-NLS-1$
+
+    private final JLabeledTextField jmsConPwd = new JLabeledPasswordField(JMeterUtils.getResString("jms_con_pwd")); //$NON-NLS-1$
+
     private final JLabeledTextField jmsUser = new JLabeledTextField(JMeterUtils.getResString("jms_user")); //$NON-NLS-1$
 
     private final JLabeledTextField jmsPwd = new JLabeledPasswordField(JMeterUtils.getResString("jms_pwd")); //$NON-NLS-1$
@@ -203,6 +207,7 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         mainPanel.add(jndiConnFac);
         mainPanel.add(createDestinationPane());
         mainPanel.add(createAuthPane());
+        mainPanel.add(createConAuthPane());
         mainPanel.add(createPriorityAndExpiration());
         mainPanel.add(iterations);
 
@@ -375,7 +380,12 @@ public class JMSPublisherGui extends AbstractSamplerGui implements ChangeListene
         pane.add(jmsPwd);
         return pane;
     }
-
+    private JPanel createConAuthPane() {
+        JPanel panel = new HorizontalPanel();
+        panel.add(jmsConUser);
+        panel.add(jmsConPwd);
+        return panel;
+    }
     /**
      * @return JPanel Panel for priority and expiration
      */
