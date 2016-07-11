@@ -140,8 +140,9 @@ public class PublisherSampler extends BaseJMSSampler implements TestStateListene
      */
     private void initClient() throws JMSException, NamingException {
         publisher = new Publisher(getUseJNDIPropertiesAsBoolean(), getJNDIInitialContextFactory(), 
-                getProviderUrl(), getConnectionFactory(), getDestination(), isUseAuth(), getUsername(),
-                getPassword(), isDestinationStatic());
+                getProviderUrl(), getConnectionFactory(), getDestination(), isUseAuth(),
+                getUsername(), getPassword(),
+                getJmsUser(), getJmsPwd(), isDestinationStatic());
         ClientPool.addClient(publisher);
         log.debug("PublisherSampler.initClient called");
     }

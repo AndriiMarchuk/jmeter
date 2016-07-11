@@ -52,9 +52,10 @@ public abstract class BaseJMSSampler extends AbstractSampler {
 
     private static final String CREDENTIALS = "jms.security_credentials"; // $NON-NLS-1$
 
-    /*
-     * The number of samples to aggregate
-     */
+    private static final String JMS_USER = "jms_user"; // $NON-NLS-1$
+
+    private static final String JMS_PWD = "jms_pwd"; // $NON-NLS-1$
+
     private static final String ITERATIONS = "jms.iterations"; // $NON-NLS-1$
 
     private static final String USE_AUTH = "jms.authenticate"; // $NON-NLS-1$
@@ -183,12 +184,49 @@ public abstract class BaseJMSSampler extends AbstractSampler {
     }
 
     /**
+     * return the JMS username used in JMS connection
+     *
+     * @return the JMS username used in JMS connection
+     */
+
+    public String getJmsUser() {
+        return getPropertyAsString(JMS_USER);
+    }
+
+    /**
+     * set the JMS username used in JMS connection
+     *
+     * @param user the JMS username used in JMS connection
+     */
+    public void setJmsUser(String user) {
+        setProperty(JMS_USER, user);
+    }
+
+    /**
      * Set the password to login to the jms server
      *
      * @param pwd the password to use for login on the jms server
      */
     public void setPassword(String pwd) {
         setProperty(CREDENTIALS, pwd);
+    }
+
+    /**
+     * return the password used in JMS connection
+     *
+     * @return the password used in JMS connection
+     */
+    public String getJmsPwd() {
+        return getPropertyAsString(JMS_PWD);
+    }
+
+    /**
+     * Set the password in JMS connection
+     *
+     * @param pwd the password in JMS connection
+     */
+    public void setJmsPwd(String pwd) {
+        setProperty(JMS_PWD, pwd);
     }
 
     /**

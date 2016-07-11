@@ -34,6 +34,7 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.jmeter.protocol.jms.Utils;
@@ -45,6 +46,8 @@ public class Publisher implements Closeable {
     private static final Logger log = LoggingManager.getLoggerForClass();
 
     private final Connection connection;
+
+    private final ConnectionFactory connectionFactory;
 
     private final Session session;
 
@@ -81,12 +84,12 @@ public class Publisher implements Closeable {
      * @throws NamingException
      *             when creation of the publisher fails
      */
-    public Publisher(boolean useProps, String initialContextFactory, String providerUrl, 
-            String connfactory, String destinationName, boolean useAuth,
-            String securityPrincipal, String securityCredentials) throws JMSException, NamingException {
+    public Publisher(boolean useProps, String initialContextFactory, String providerUrl,
+                     String connfactory, String destinationName, boolean useAuth,
+                     String securityPrincipal, String securityCredentials, String jmsUser, String jmsPwd) throws JMSException, NamingException {
         this(useProps, initialContextFactory, providerUrl, connfactory,
                 destinationName, useAuth, securityPrincipal,
-                securityCredentials, true);
+                securityCredentials, jmsUser, jmsPwd, true);
     }
     
     
@@ -118,21 +121,36 @@ public class Publisher implements Closeable {
      * @throws NamingException
      *             when creation of the publisher fails
      */
-    public Publisher(boolean useProps, String initialContextFactory, String providerUrl, 
-            String connfactory, String destinationName, boolean useAuth,
-            String securityPrincipal, String securityCredentials,
-            boolean staticDestination) throws JMSException, NamingException {
+    public Publisher(boolean useProps, String initialContextFactory, String providerUrl,
+                     String connfactory, String destinationName, boolean useAuth,
+                     String securityPrincipal, String securityCredentials,
+                     String jmsUser, String jmsPwd, boolean staticDestination) throws JMSException, NamingException {
         super();
         boolean initSuccess = false;
         try{
-            ctx = InitialContextFactory.getContext(useProps, initialContextFactory, 
-                    providerUrl, useAuth, securityPrincipal, securityCredentials);
-            connection = Utils.getConnection(ctx, connfactory);
+            Properties env = new Properties();
+            env.put("java.naming.factory.initial", initialContextFactory);
+            env.put("java.naming.provider.url", providerUrl);
+            if (useAuth) {
+                env.put("java.naming.security.principal", securityPrincipal);
+                env.put("java.naming.security.credentials", securityCredentials);
+            }
+
+            //Get JNDI Connection
+            ctx = new InitialContext(env);
+            //Look up JMS Connection Factory
+            this.connectionFactory = (ConnectionFactory) ctx.lookup(connfactory);
+            //Create Topic Connection
+            if (useAuth) {
+                this.connection = connectionFactory.createConnection(jmsUser, jmsPwd);
+            } else {
+                this.connection = connectionFactory.createConnection();
+            }
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             staticDest = staticDestination;
             if (staticDest) {
-                Destination dest = Utils.lookupDestination(ctx, destinationName);
-                producer = session.createProducer(dest);
+                Destination destination = (Destination) ctx.lookup(destinationName);
+                producer = session.createProducer(destination);
             } else {
                 producer = session.createProducer(null);
             }
