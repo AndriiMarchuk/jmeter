@@ -18,28 +18,19 @@
 
 package org.apache.jmeter.protocol.jms.client;
 
+import org.apache.jmeter.protocol.jms.Utils;
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
+
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.Closeable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.jms.BytesMessage;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.apache.jmeter.protocol.jms.Utils;
-import org.apache.jorphan.logging.LoggingManager;
-import org.apache.log.Logger;
+import java.util.Properties;
 
 public class Publisher implements Closeable {
 
