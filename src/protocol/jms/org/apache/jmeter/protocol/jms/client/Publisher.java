@@ -38,14 +38,12 @@ public class Publisher implements Closeable {
 
     private final Connection connection;
 
-    private final ConnectionFactory connectionFactory;
-
     private final Session session;
 
     private final MessageProducer producer;
     
-    private final Context ctx;
-    
+    private Context ctx;
+
     private final boolean staticDest;
 
     /**
@@ -119,24 +117,33 @@ public class Publisher implements Closeable {
         super();
         boolean initSuccess = false;
         try{
-            Properties env = new Properties();
-            env.put("java.naming.factory.initial", initialContextFactory);
-            env.put("java.naming.provider.url", providerUrl);
+            ctx = InitialContextFactory.getContext(useProps,
+                    initialContextFactory, providerUrl, useAuth, securityPrincipal, securityCredentials);
+            //Create authentificated connection if prowided useAuth flag
             if (useAuth) {
-                env.put("java.naming.security.principal", securityPrincipal);
-                env.put("java.naming.security.credentials", securityCredentials);
+                connection = Utils.getConnection(ctx, connfactory, jmsUser, jmsPwd);
+            } else {
+                connection = Utils.getConnection(ctx, connfactory);
             }
 
-            //Get JNDI Connection
-            ctx = new InitialContext(env);
-            //Look up JMS Connection Factory
-            this.connectionFactory = (ConnectionFactory) ctx.lookup(connfactory);
-            //Create Topic Connection
-            if (useAuth) {
-                this.connection = connectionFactory.createConnection(jmsUser, jmsPwd);
-            } else {
-                this.connection = connectionFactory.createConnection();
-            }
+//            Properties env = new Properties();
+//            env.put("java.naming.factory.initial", initialContextFactory);
+//            env.put("java.naming.provider.url", providerUrl);
+//            if (useAuth) {
+//                env.put("java.naming.security.principal", securityPrincipal);
+//                env.put("java.naming.security.credentials", securityCredentials);
+//            }
+//
+//            //Get JNDI Connection
+//            ctx = new InitialContext(env);
+//            //Look up JMS Connection Factory
+//            this.connectionFactory = (ConnectionFactory) ctx.lookup(connfactory);
+//            //Create Topic Connection
+//            if (useAuth) {
+//                this.connection = connectionFactory.createConnection(jmsUser, jmsPwd);
+//            } else {
+//                this.connection = connectionFactory.createConnection();
+//            }
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             staticDest = staticDestination;
             if (staticDest) {

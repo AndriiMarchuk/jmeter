@@ -112,7 +112,7 @@ public class SubscriberSampler extends BaseJMSSampler implements Interruptible, 
     private void initListenerClient() throws JMSException, NamingException {
         SUBSCRIBER = new ReceiveSubscriber(0, getUseJNDIPropertiesAsBoolean(), getJNDIInitialContextFactory(),
                     getProviderUrl(), getConnectionFactory(), getDestination(), getDurableSubscriptionId(),
-                    getClientId(), getJmsSelector(), isUseAuth(), getUsername(), getPassword());
+                    getClientId(), getJmsSelector(), isUseAuth(), getUsername(), getPassword(), getJmsUser(), getJmsPwd());
         setupSeparator();
         log.debug("SubscriberSampler.initListenerClient called");
     }
@@ -125,7 +125,7 @@ public class SubscriberSampler extends BaseJMSSampler implements Interruptible, 
     private void initReceiveClient() throws NamingException, JMSException {
         SUBSCRIBER = new ReceiveSubscriber(getUseJNDIPropertiesAsBoolean(),
                 getJNDIInitialContextFactory(), getProviderUrl(), getConnectionFactory(), getDestination(),
-                getDurableSubscriptionId(), getClientId(), getJmsSelector(), isUseAuth(), getUsername(), getPassword());
+                getDurableSubscriptionId(), getClientId(), getJmsSelector(), isUseAuth(), getUsername(), getPassword(), getJmsUser(), getJmsPwd());
         setupSeparator();
         log.debug("SubscriberSampler.initReceiveClient called");
     }

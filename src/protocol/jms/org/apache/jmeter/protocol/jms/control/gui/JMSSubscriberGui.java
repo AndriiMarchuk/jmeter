@@ -21,9 +21,7 @@ package org.apache.jmeter.protocol.jms.control.gui;
 import java.awt.BorderLayout;
 
 import javax.naming.Context;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -68,6 +66,10 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
 
     private final JLabeledTextField jmsSelector =
         new JLabeledTextField(JMeterUtils.getResString("jms_selector")); // $NON-NLS-1$
+
+    private final JLabeledTextField jmsSecurityPrincipal = new JLabeledTextField(JMeterUtils.getResString("jms_security_principal")); //$NON-NLS-1$
+
+    private final JLabeledTextField jmsSecurityCredentials = new JLabeledPasswordField(JMeterUtils.getResString("jms_security_credentials")); //$NON-NLS-1$
 
     private final JLabeledTextField jmsUser =
         new JLabeledTextField(JMeterUtils.getResString("jms_user")); // $NON-NLS-1$
@@ -151,8 +153,10 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         sampler.setDurableSubscriptionId(jmsDurableSubscriptionId.getText());
         sampler.setClientID(jmsClientId.getText());
         sampler.setJmsSelector(jmsSelector.getText());
-        sampler.setUsername(jmsUser.getText());
-        sampler.setPassword(jmsPwd.getText());
+        sampler.setJmsUser(jmsUser.getText());
+        sampler.setJmsPwd(jmsPwd.getText());
+        sampler.setUsername(jmsSecurityPrincipal.getText());
+        sampler.setPassword(jmsSecurityCredentials.getText());
         sampler.setUseAuth(useAuth.isSelected());
         sampler.setIterations(samplesToAggregate.getText());
         sampler.setReadResponse(String.valueOf(storeResponse.isSelected()));
@@ -187,9 +191,8 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         mainPanel.add(jmsDurableSubscriptionId);
         mainPanel.add(jmsClientId);
         mainPanel.add(jmsSelector);
-        mainPanel.add(useAuth);
-        mainPanel.add(jmsUser);
-        mainPanel.add(jmsPwd);
+        mainPanel.add(createAuthSecurPane());
+        mainPanel.add(createJMSAuthPane());
         mainPanel.add(samplesToAggregate);
 
         mainPanel.add(storeResponse);
@@ -222,10 +225,14 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         jmsSelector.setText(sampler.getJmsSelector());
         jmsUser.setText(sampler.getUsername());
         jmsPwd.setText(sampler.getPassword());
+        jmsSecurityPrincipal.setText(sampler.getUsername());
+        jmsSecurityCredentials.setText(sampler.getPassword());
         samplesToAggregate.setText(sampler.getIterations());
         useAuth.setSelected(sampler.isUseAuth());
         jmsUser.setEnabled(useAuth.isSelected());
         jmsPwd.setEnabled(useAuth.isSelected());
+        jmsSecurityPrincipal.setEnabled(useAuth.isSelected());
+        jmsSecurityCredentials.setEnabled(useAuth.isSelected());
         storeResponse.setSelected(sampler.getReadResponseAsBoolean());
         clientChoice.setText(sampler.getClientChoice());
         stopBetweenSamples.setSelected(sampler.isStopBetweenSamples());
@@ -247,11 +254,15 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         jmsSelector.setText(""); // $NON-NLS-1$
         jmsUser.setText(""); // $NON-NLS-1$
         jmsPwd.setText(""); // $NON-NLS-1$
+        jmsSecurityPrincipal.setText("");
+        jmsSecurityCredentials.setText("");
         samplesToAggregate.setText("1"); // $NON-NLS-1$
         timeout.setText(""); // $NON-NLS-1$
         separator.setText(""); // $NON-NLS-1$
         useAuth.setSelected(false);
         jmsUser.setEnabled(false);
+        jmsSecurityPrincipal.setEnabled(false);
+        jmsSecurityCredentials.setEnabled(false);
         jmsPwd.setEnabled(false);
         storeResponse.setSelected(true);
         clientChoice.setText(RECEIVE_RSC);
@@ -273,6 +284,8 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         } else if (event.getSource() == useAuth) {
             jmsUser.setEnabled(useAuth.isSelected() && useAuth.isEnabled());
             jmsPwd.setEnabled(useAuth.isSelected()  && useAuth.isEnabled());
+            jmsSecurityPrincipal.setEnabled(useAuth.isSelected() && useAuth.isEnabled());
+            jmsSecurityCredentials.setEnabled(useAuth.isSelected() && useAuth.isEnabled());
         }
     }
     
@@ -281,6 +294,30 @@ public class JMSSubscriberGui extends AbstractSamplerGui implements ChangeListen
         pane.add(jmsDestination, BorderLayout.CENTER);
         destSetup.setLayout(new BoxLayout(destSetup, BoxLayout.X_AXIS));
         pane.add(destSetup, BorderLayout.EAST);
+        return pane;
+    }
+
+    /**
+     * @return JPanel Panel for JMS Security and Principal
+     */
+    private JPanel createJMSAuthPane() {
+        JPanel panel = new HorizontalPanel();
+        panel.add(jmsSecurityPrincipal);
+        panel.add(jmsSecurityCredentials);
+        return panel;
+    }
+
+    /**
+     * @return JPanel Panel with checkbox to choose auth , user and password
+     */
+    private JPanel createAuthSecurPane() {
+        JPanel pane = new JPanel();
+        pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+        pane.add(useAuth);
+        pane.add(Box.createHorizontalStrut(10));
+        pane.add(jmsUser);
+        pane.add(Box.createHorizontalStrut(10));
+        pane.add(jmsPwd);
         return pane;
     }
 }

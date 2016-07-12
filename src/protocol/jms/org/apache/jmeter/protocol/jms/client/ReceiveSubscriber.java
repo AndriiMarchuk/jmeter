@@ -111,11 +111,11 @@ public class ReceiveSubscriber implements Closeable, MessageListener {
     public ReceiveSubscriber(boolean useProps, 
             String initialContextFactory, String providerUrl, String connfactory, String destinationName,
             String durableSubscriptionId, String clientId, String jmsSelector, boolean useAuth, 
-            String securityPrincipal, String securityCredentials) throws NamingException, JMSException {
+            String securityPrincipal, String securityCredentials, String jmsUser, String jmsPwd) throws NamingException, JMSException {
         this(0, useProps, 
                 initialContextFactory, providerUrl, connfactory, destinationName,
                 durableSubscriptionId, clientId, jmsSelector, useAuth, 
-                securityPrincipal, securityCredentials, false);
+                securityPrincipal, securityCredentials, jmsUser, jmsPwd, false);
     }
 
     /**
@@ -166,11 +166,11 @@ public class ReceiveSubscriber implements Closeable, MessageListener {
     public ReceiveSubscriber(int queueSize, boolean useProps, 
             String initialContextFactory, String providerUrl, String connfactory, String destinationName,
             String durableSubscriptionId, String clientId, String jmsSelector, boolean useAuth, 
-            String securityPrincipal, String securityCredentials) throws NamingException, JMSException {
+            String securityPrincipal, String securityCredentials, String jmsUser, String jmsPwd) throws NamingException, JMSException {
         this(queueSize,  useProps, 
              initialContextFactory, providerUrl, connfactory, destinationName,
              durableSubscriptionId, clientId, jmsSelector, useAuth, 
-             securityPrincipal,  securityCredentials, true);
+             securityPrincipal, securityCredentials, jmsUser, jmsPwd, true);
     }
     
     
@@ -225,12 +225,17 @@ public class ReceiveSubscriber implements Closeable, MessageListener {
     private ReceiveSubscriber(int queueSize, boolean useProps, 
             String initialContextFactory, String providerUrl, String connfactory, String destinationName,
             String durableSubscriptionId, String clientId, String jmsSelector, boolean useAuth, 
-            String securityPrincipal, String securityCredentials, boolean useMessageListener) throws NamingException, JMSException {
+            String securityPrincipal, String securityCredentials, String jmsUser, String jmsPwd, boolean useMessageListener) throws NamingException, JMSException {
         boolean initSuccess = false;
         try{
             Context ctx = InitialContextFactory.getContext(useProps, 
                     initialContextFactory, providerUrl, useAuth, securityPrincipal, securityCredentials);
-            connection = Utils.getConnection(ctx, connfactory);
+            //Create authentificated connection if prowided useAuth flag
+            if (useAuth) {
+                connection = Utils.getConnection(ctx, connfactory, jmsUser, jmsPwd);
+            } else {
+                connection = Utils.getConnection(ctx, connfactory);
+            }
             if(!isEmpty(clientId)) {
                 connection.setClientID(clientId);
             }

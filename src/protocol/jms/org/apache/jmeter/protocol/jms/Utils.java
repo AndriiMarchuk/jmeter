@@ -208,6 +208,39 @@ public final class Utils {
         }
         throw new NamingException("Expected javax.jms.ConnectionFactory, found "+(objfac != null ? objfac.getClass().getName(): "null"));
     }
+
+    /**
+     * Obtain the queue connection from the context, factory name and authentification credentials
+     *
+     * @param ctx
+     *            context to use
+     * @param factoryName
+     *            name of the object factory to look up in <code>context</code>
+     * @param jmsUser authentification username
+     * @param jmsPwd authentification password
+     * @return the queue connection
+     * @throws JMSException
+     *             when creation of the connection fails
+     * @throws NamingException
+     *             when lookup in context fails
+     */
+    public static Connection getConnection(Context ctx, String factoryName, String jmsUser, String jmsPwd) throws JMSException, NamingException {
+        Object objfac = null;
+        try {
+            objfac = ctx.lookup(factoryName);
+        } catch (NoClassDefFoundError e) {
+            throw new NamingException("Lookup failed: "+e.toString());
+        }
+        if (objfac instanceof javax.jms.ConnectionFactory) {
+            if(jmsUser != null) {
+                return ((javax.jms.ConnectionFactory) objfac).createConnection(jmsUser, jmsPwd);
+            }
+            else {
+                return ((javax.jms.ConnectionFactory) objfac).createConnection();
+            }
+        }
+        throw new NamingException("Expected javax.jms.ConnectionFactory, found "+(objfac != null ? objfac.getClass().getName(): "null"));
+    }
     
     /**
      * Set JMS Properties to msg
